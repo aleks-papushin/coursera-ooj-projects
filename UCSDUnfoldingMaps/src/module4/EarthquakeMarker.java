@@ -50,10 +50,10 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		// Add a radius property and then set the properties
 		java.util.HashMap<String, Object> properties = feature.getProperties();
 		float magnitude = Float.parseFloat(properties.get("magnitude").toString());
-		properties.put("radius", 2*magnitude );
+		properties.put("radius", 2.7*magnitude );
 		setProperties(properties);
 		this.radius = 1.75f*getMagnitude();
-	}
+    }
 	
 
 	// calls abstract method drawEarthquake and then checks age and draws X if needed
@@ -64,10 +64,14 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		// determine color of marker from depth
 		colorDetermine(pg);
 		
-		// call abstract method implemented in child class to draw marker shape
+		// call abstract method implemented in child class to drawMarker marker shape
 		drawEarthquake(pg, x, y);
 		
-		// OPTIONAL TODO: draw X over marker if within past day		
+		// OPTIONAL TODO: drawMarker X over marker if within past day
+        if (getProperty("age").equals("Past Day")) {
+            pg.line(x - radius, y - radius, x + radius, y + radius);
+            pg.line(x - radius, y + radius, x + radius, y - radius);
+        }
 		
 		// reset to previous styling
 		pg.popStyle();
@@ -80,8 +84,15 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	// You might find the getters below helpful.
 	private void colorDetermine(PGraphics pg) {
 		//TODO: Implement this method
+		float depth = getDepth();
+		if (depth < THRESHOLD_INTERMEDIATE) {
+			pg.fill(239, 228, 43);
+		}
+		else if (depth < THRESHOLD_DEEP) {
+			pg.fill(41, 106, 219);
+		}
+		else pg.fill(252, 47, 47);
 	}
-	
 	
 	/*
 	 * getters for earthquake properties
@@ -108,6 +119,4 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	{
 		return isOnLand;
 	}
-	
-	
 }

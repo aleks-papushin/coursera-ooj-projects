@@ -13,6 +13,7 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
@@ -26,7 +27,7 @@ import processing.core.PApplet;
 public class EarthquakeCityMap extends PApplet {
 	
 	// We will use member variables, instead of local variables, to store the data
-	// that the setup and draw methods will need to access (as well as other methods)
+	// that the setup and drawMarker methods will need to access (as well as other methods)
 	// You will use many of these variables, but the only one you should need to add
 	// code to modify is countryQuakes, where you will store the number of earthquakes
 	// per country.
@@ -41,7 +42,7 @@ public class EarthquakeCityMap extends PApplet {
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
 	
 	//feed with magnitude 2.5+ Earthquakes
-	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 	
 	// The files containing city names and info and country names and info
 	private String cityFile = "city-data.json";
@@ -70,7 +71,7 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.HybridProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 		    //earthquakesURL = "2.5_week.atom";
 		}
@@ -133,7 +134,6 @@ public class EarthquakeCityMap extends PApplet {
 		if (lastSelected != null) {
 			lastSelected.setSelected(false);
 			lastSelected = null;
-		
 		}
 		selectMarkerIfHover(quakeMarkers);
 		selectMarkerIfHover(cityMarkers);
@@ -146,6 +146,12 @@ public class EarthquakeCityMap extends PApplet {
 	private void selectMarkerIfHover(List<Marker> markers)
 	{
 		// TODO: Implement this method
+		for (Marker marker : markers) {
+			if (marker.isInside(map, mouseX, mouseY) && !marker.isSelected() && lastSelected == null) {
+				marker.setSelected(true);
+				lastSelected = (CommonMarker) marker;
+			}
+		}
 	}
 	
 	/** The event handler for mouse clicks
@@ -159,8 +165,26 @@ public class EarthquakeCityMap extends PApplet {
 		// TODO: Implement this method
 		// Hint: You probably want a helper method or two to keep this code
 		// from getting too long/disorganized
+
+        if (lastClicked != null) {
+            lastClicked.setClicked(false);
+            lastClicked = null;
+            unhideMarkers();
+        }
+        else {
+            checkIfQuakeMarkerWasClicked();
+
+            checkIfCityMarkerWasClicked();
+
+            if (lastClicked != null) {
+                checkIfAnyUnderThreat(lastClicked);
+            }
+        }
+
+        if (lastClicked == null) {
+            unhideMarkers();
+        }
 	}
-	
 	
 	// loop over and unhide all markers
 	private void unhideMarkers() {
@@ -172,8 +196,58 @@ public class EarthquakeCityMap extends PApplet {
 			marker.setHidden(false);
 		}
 	}
+
+	// loop over earhtquakes and hide if it wasn't clicked
+	private void checkIfQuakeMarkerWasClicked() {
+        for (Marker quakeMarker : quakeMarkers) {
+            if (quakeMarker.isInside(map, mouseX, mouseY)) {
+                lastClicked = (CommonMarker) quakeMarker;
+                lastClicked.setClicked(true);
+                lastClicked.setHidden(false);
+            } else {
+                quakeMarker.setHidden(true);
+            }
+        }
+    }
+
+	// loop over cities and hide if wasn't clicked
+	private void checkIfCityMarkerWasClicked() {
+        for (Marker cityMarker : cityMarkers) {
+            if (cityMarker.isInside(map, mouseX, mouseY)) {
+                lastClicked = (CommonMarker) cityMarker;
+                lastClicked.setClicked(true);
+                lastClicked.setHidden(false);
+            }
+            else {
+                cityMarker.setHidden(true);
+            }
+        }
+	}
+
+	// check if there are treats between the nearest objects
+    // and show markers if there are
+	private void checkIfAnyUnderThreat(CommonMarker marker) {
+        // looking for cities if quake was clicked...
+	    if (marker instanceof EarthquakeMarker) {
+            for (Marker cityMarker : cityMarkers) {
+                if (marker.getDistanceTo(cityMarker.getLocation()) <
+                        ((EarthquakeMarker)marker).threatCircle()) {
+                    cityMarker.setHidden(false);
+                }
+            }
+        }
+        // ... otherwise looking for quakes (city was clicked)
+        else {
+            for (Marker quakeMarker : quakeMarkers) {
+                if (quakeMarker.getDistanceTo(marker.getLocation()) <
+                        ((EarthquakeMarker)quakeMarker).threatCircle()) {
+                    quakeMarker.setHidden(false);
+                }
+            }
+        }
+    }
 	
-	// helper method to draw key in GUI
+	// helper method to drawMarker key in GUI
 	private void addKey() {	
 		// Remember you can use Processing's graphics methods here
 		fill(255, 250, 240);
@@ -235,8 +309,6 @@ public class EarthquakeCityMap extends PApplet {
 		line(centerx-8, centery+8, centerx+8, centery-8);
 			
 	}
-
-	
 	
 	// Checks whether this quake occurred on land.  If it did, it sets the 
 	// "country" property of its PointFeature to the country where it occurred
@@ -279,8 +351,6 @@ public class EarthquakeCityMap extends PApplet {
 		System.out.println("OCEAN QUAKES: " + totalWaterQuakes);
 	}
 	
-	
-	
 	// helper method to test whether a given earthquake is in a given country
 	// This will also add the country property to the properties of the earthquake feature if 
 	// it's in one of the countries.
@@ -314,5 +384,4 @@ public class EarthquakeCityMap extends PApplet {
 		}
 		return false;
 	}
-
 }

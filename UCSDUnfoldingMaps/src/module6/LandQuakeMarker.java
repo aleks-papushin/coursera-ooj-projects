@@ -26,7 +26,7 @@ public class LandQuakeMarker extends EarthquakeMarker {
 		// IMPLEMENT: drawing circle for LandQuake
 		// DO NOT set the fill color.  That will be set in the EarthquakeMarker
 		// class to indicate the depth of the earthquake.
-		// Simply draw a centered square.
+		// Simply drawMarker a centered square.
 		// HINT: Notice the radius variable in the EarthquakeMarker class
 		// and how it is set in the EarthquakeMarker constructor
 		pg.ellipse(x, y, 2*radius, 2*radius);

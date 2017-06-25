@@ -27,7 +27,7 @@ import processing.core.PApplet;
 public class EarthquakeCityMap extends PApplet {
 	
 	// We will use member variables, instead of local variables, to store the data
-	// that the setUp and draw methods will need to access (as well as other methods)
+	// that the setUp and drawMarker methods will need to access (as well as other methods)
 	// You will use many of these variables, but the only one you should need to add
 	// code to modify is countryQuakes, where you will store the number of earthquakes
 	// per country.
@@ -262,7 +262,7 @@ public class EarthquakeCityMap extends PApplet {
 		}
 	}
 	
-	// helper method to draw key in GUI
+	// helper method to drawMarker key in GUI
 	private void addKey() {	
 		// Remember you can use Processing's graphics methods here
 		fill(255, 250, 240);

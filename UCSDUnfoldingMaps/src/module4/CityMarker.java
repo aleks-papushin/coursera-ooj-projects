@@ -15,7 +15,7 @@ import processing.core.PGraphics;
 public class CityMarker extends SimplePointMarker {
 	
 	// The size of the triangle marker
-	// It's a good idea to use this variable in your draw method
+	// It's a good idea to use this variable in your drawMarker method
 	public static final int TRI_SIZE = 5;  
 	
 	public CityMarker(Location location) {
@@ -30,20 +30,24 @@ public class CityMarker extends SimplePointMarker {
 	
 	// HINT: pg is the graphics object on which you call the graphics
 	// methods.  e.g. pg.fill(255, 0, 0) will set the color to red
-	// x and y are the center of the object to draw. 
+	// x and y are the center of the object to drawMarker.
 	// They will be used to calculate the coordinates to pass
 	// into any shape drawing methods.  
-	// e.g. pg.rect(x, y, 10, 10) will draw a 10x10 square
+	// e.g. pg.rect(x, y, 10, 10) will drawMarker a 10x10 square
 	// whose upper left corner is at position x, y
 	/**
-	 * Implementation of method to draw marker on the map.
+	 * Implementation of method to drawMarker marker on the map.
 	 */
 	public void draw(PGraphics pg, float x, float y) {
 		// Save previous drawing style
 		pg.pushStyle();
 		
-		// TODO: Add code to draw a triangle to represent the CityMarker
-		
+		// TODO: Add code to drawMarker a triangle to represent the CityMarker
+		pg.pushMatrix();
+		pg.translate(x, y);
+		pg.fill(145, 10, 10);
+		pg.triangle(0, -TRI_SIZE * 2, -TRI_SIZE * 2, TRI_SIZE, TRI_SIZE * 2, TRI_SIZE);
+		pg.popMatrix();
 		// Restore previous drawing style
 		pg.popStyle();
 	}

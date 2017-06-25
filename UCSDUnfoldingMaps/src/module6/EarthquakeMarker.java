@@ -68,7 +68,7 @@ public abstract class EarthquakeMarker extends CommonMarker
 		// determine color of marker from depth
 		colorDetermine(pg);
 		
-		// call abstract method implemented in child class to draw marker shape
+		// call abstract method implemented in child class to drawMarker marker shape
 		drawEarthquake(pg, x, y);
 		
 		// IMPLEMENT: add X over marker if within past day		

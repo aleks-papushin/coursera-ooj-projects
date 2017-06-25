@@ -64,7 +64,7 @@ public abstract class EarthquakeMarker extends CommonMarker
 		// determine color of marker from depth
 		colorDetermine(pg);
 		
-		// call abstract method implemented in child class to draw marker shape
+		// call abstract method implemented in child class to drawMarker marker shape
 		drawEarthquake(pg, x, y);
 		
 		// IMPLEMENT: add X over marker if within past day		
@@ -94,9 +94,15 @@ public abstract class EarthquakeMarker extends CommonMarker
 	public void showTitle(PGraphics pg, float x, float y)
 	{
 		// TODO: Implement this method
+		String earthQuakeInfo = getTitle();
+		float stringWidth = pg.textWidth(earthQuakeInfo);
+
+		pg.fill(255, 250, 240);
+		pg.rect(x + 5, y - 11, stringWidth + 5, 14);
+		pg.fill(0);
+		pg.text(earthQuakeInfo, x + 8, y);
 		
 	}
-
 	
 	/**
 	 * Return the "threat circle" radius, or distance up to 
@@ -141,8 +147,7 @@ public abstract class EarthquakeMarker extends CommonMarker
 	}
 	
 	public String getTitle() {
-		return (String) getProperty("title");	
-		
+		return (String) getProperty("title");
 	}
 	
 	public float getRadius() {
@@ -153,8 +158,4 @@ public abstract class EarthquakeMarker extends CommonMarker
 	{
 		return isOnLand;
 	}
-	
-
-	
-	
 }

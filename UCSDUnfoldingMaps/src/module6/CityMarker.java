@@ -29,13 +29,13 @@ public class CityMarker extends CommonMarker {
 	
 	// pg is the graphics object on which you call the graphics
 	// methods.  e.g. pg.fill(255, 0, 0) will set the color to red
-	// x and y are the center of the object to draw. 
+	// x and y are the center of the object to drawMarker.
 	// They will be used to calculate the coordinates to pass
 	// into any shape drawing methods.  
-	// e.g. pg.rect(x, y, 10, 10) will draw a 10x10 square
+	// e.g. pg.rect(x, y, 10, 10) will drawMarker a 10x10 square
 	// whose upper left corner is at position x, y
 	/**
-	 * Implementation of method to draw marker on the map.
+	 * Implementation of method to drawMarker marker on the map.
 	 */
 	public void drawMarker(PGraphics pg, float x, float y) {
 		//System.out.println("Drawing a city");

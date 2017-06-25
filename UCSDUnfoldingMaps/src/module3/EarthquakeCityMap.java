@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Processing library
+import com.sun.org.apache.xpath.internal.SourceTree;
+import de.fhpotsdam.unfolding.data.Feature;
+import de.fhpotsdam.unfolding.providers.MapQuestProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import processing.core.PApplet;
 
 //Unfolding libraries
@@ -20,6 +24,7 @@ import de.fhpotsdam.unfolding.utils.MapUtils;
 
 //Parsing library
 import parsing.ParseFeed;
+import processing.core.PShape;
 
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
@@ -39,6 +44,14 @@ public class EarthquakeCityMap extends PApplet {
 	public static final float THRESHOLD_MODERATE = 5;
 	// Less than this threshold is a minor earthquake
 	public static final float THRESHOLD_LIGHT = 4;
+	// Colors constants for coloring the markers
+	public final int RED = color(255, 0, 0);
+	public final int YELLOW = color(255, 255, 0);
+	public final int BLUE = color(0, 0, 255);
+	// Size constants for markers
+	public static final int HUGE = 15;
+	public static final int MODERATE = 10;
+	public static final int LIGHT = 5;
 
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
@@ -47,8 +60,7 @@ public class EarthquakeCityMap extends PApplet {
 	private UnfoldingMap map;
 	
 	//feed with magnitude 2.5+ Earthquakes
-	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
-
+	private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 	
 	public void setup() {
 		size(950, 600, OPENGL);
@@ -58,7 +70,7 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom"; 	// Same feed, saved Aug 7, 2015, for working offline
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 700, 500, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 700, 500, new Microsoft.HybridProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 			//earthquakesURL = "2.5_week.atom";
 		}
@@ -75,7 +87,7 @@ public class EarthquakeCityMap extends PApplet {
 	    
 	    // These print statements show you (1) all of the relevant properties 
 	    // in the features, and (2) how to get one property and use it
-	    if (earthquakes.size() > 0) {
+        if (earthquakes.size() > 0) {
 	    	PointFeature f = earthquakes.get(0);
 	    	System.out.println(f.getProperties());
 	    	Object magObj = f.getProperty("magnitude");
@@ -88,6 +100,14 @@ public class EarthquakeCityMap extends PApplet {
 	    int yellow = color(255, 255, 0);
 	    
 	    //TODO: Add code here as appropriate
+		// Create markers for every single earthquake in List of earthquakes
+		// and add them to the appropriate array
+		for (PointFeature earthquake : earthquakes) {
+			markers.add(createMarker(earthquake));
+		}
+
+		// Add all markers from the List to the map
+		map.addMarkers(markers);
 	}
 		
 	// A suggested helper method that takes in an earthquake feature and 
@@ -95,8 +115,21 @@ public class EarthquakeCityMap extends PApplet {
 	// TODO: Implement this method and call it from setUp, if it helps
 	private SimplePointMarker createMarker(PointFeature feature)
 	{
-		// finish implementing and use this method, if it helps.
-		return new SimplePointMarker(feature.getLocation());
+		// Create marker based on earthquake location
+		SimplePointMarker marker = new SimplePointMarker(feature.getLocation());
+		// Color and set marker size based on earthquake magnitude
+		float magnitude = (float) feature.getProperty("magnitude");
+		if (magnitude > THRESHOLD_MODERATE) {
+			marker.setColor(RED);
+			marker.setRadius(HUGE);
+		} else if (magnitude <= THRESHOLD_MODERATE && magnitude > THRESHOLD_LIGHT) {
+			marker.setColor(YELLOW);
+			marker.setRadius(MODERATE);
+		} else {
+			marker.setColor(BLUE);
+			marker.setRadius(LIGHT);
+		}
+		return marker;
 	}
 	
 	public void draw() {
@@ -105,12 +138,29 @@ public class EarthquakeCityMap extends PApplet {
 	    addKey();
 	}
 
+	// helper method to drawMarker key in GUI
+	// TODO: Implement this method to drawMarker the key
+	private void addKey() {
+		pushMatrix();
+		translate(20, 100);
 
-	// helper method to draw key in GUI
-	// TODO: Implement this method to draw the key
-	private void addKey() 
-	{	
-		// Remember you can use Processing's graphics methods here
-	
+		fill(200);
+		rect(0, 0, 140, 300); // legend background
+		fill(0);
+		textAlign(TOP, CENTER);
+		text("Earthquake Key", 20, 20);  // legend title
+
+		fill(RED);
+		ellipse(20, 100, HUGE, HUGE);
+		fill(YELLOW);
+		ellipse(20, 150, MODERATE, MODERATE);
+		fill(BLUE);
+		ellipse(20, 200, LIGHT, LIGHT);
+		fill(0);
+		text("Magnitude >5", 30, 100);
+		text("Magnitude >4", 30, 150);
+		text("Magnitude <4", 30, 200);
+
+		popMatrix();
 	}
 }
